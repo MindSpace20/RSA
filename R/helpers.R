@@ -57,7 +57,18 @@ anovaList <- function(modellist) {
     # put them in order (using df)
     DF <- sapply(mods, fitmeasures, "df")
     mods <- mods[order(DF, decreasing = FALSE)]
-		
+
+  # prevent lavaan error in case that some models (but not all) have scaled test statistics
+    # Details about this workaround: In case that the models were estimated with robust ML and one of the models has df=0 (i.e., the full second-/third-order polynomial model), lavaan::lavTestLRT would not allow to compare the (df=0)-model to a nested model because no scaled test statistic has been computed for the (df=0)-model in this case. We change the internal label of the test statistic of the (df=0)-model so that the chi-square difference test will be computed anyway. This is valid, because the model with zero degrees of freedom has a chi-square test statistic of T=0. The output of the comparison will be the scaled test statistic of the nested model, which is the correct statistic for the scaled chi-square difference test in this case.      
+    # detect such cases (condition copy-pasted from the lavaan::lavTestLRT code)
+      mods.scaled <- unlist( lapply(mods, function(x) {
+        any(c("satorra.bentler", "yuan.bentler", "yuan.bentler.mplus", "mean.var.adjusted", "scaled.shifted") 
+            %in% unlist(sapply(slot(x, "test"), "[", "test")) ) }))
+    # change internal label
+      if( ! ( all(mods.scaled) | !any(mods.scaled) ) ) {
+        mods[[ which(sapply(mods, fitmeasures, "df") == 0) ]]@test[[2]]$test <- mods[[ which(mods.scaled)[1] ]]@test[[2]]$test
+      } 
+    
 	pStr <- sapply(1:length(mods), function(x){ 
 		if(x==1) {
 			paste("mods[[",x,"]]",sep = "")
@@ -102,7 +113,7 @@ cModels <- function(mL, set, free.max) {
 			names(R2.p) <- "R2.p"
 			
 			# compute AICc
-	      	AICc <- F["aic"] + 2*(k*(k+1))/(n-k-1)
+	    AICc <- F["aic"] + 2*(k*(k+1))/(n-k-1)
 			names(AICc) <- NULL
 			
 			return(c(AICc=AICc, F[c("cfi", "srmr")], R, R2.p))
