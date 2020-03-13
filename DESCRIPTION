@@ -30,7 +30,6 @@ Depends:
     lattice
 Imports:
     plyr,
-    RColorBrewer,
-    aplpack
+    RColorBrewer
 License: GPL (>= 2)
 RoxygenNote: 6.1.1
