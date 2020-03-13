@@ -22,8 +22,7 @@ Suggests:
     SDMTools,
     rgl,
     qgraph,
-    AICcmodavg,
-    tcltk
+    AICcmodavg
 Depends:
     R (>= 2.15.0),
     lavaan (>= 0.5.20),
