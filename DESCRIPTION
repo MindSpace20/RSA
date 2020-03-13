@@ -32,7 +32,6 @@ Depends:
 Imports:
     plyr,
     RColorBrewer,
-    aplpack,
-		tkrplot
+    aplpack
 License: GPL (>= 2)
 RoxygenNote: 6.1.1
